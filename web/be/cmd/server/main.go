@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ismtabo/mapon-viewer/pkg/cfg"
+	"github.com/ismtabo/sso-poc/web/be/pkg/cfg"
 	"github.com/rs/zerolog"
 )
 

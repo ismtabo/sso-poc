@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "auth"
+		},
+		{
+			"path": "web/be"
+		},
+		{
+			"path": "web/fe"
+		}
+	],
+	"settings": {}
+}

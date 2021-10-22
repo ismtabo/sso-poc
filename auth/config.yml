@@ -3,3 +3,11 @@ server:
   port: 8080
 log:
   level: DEBUG
+web:
+  static: ./web/assets
+  pages: ./web/pages
+  session:
+    key: super-secret-key
+    cookie: cookie-name
+database:
+  file: ./build/database

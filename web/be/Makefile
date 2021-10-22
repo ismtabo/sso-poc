@@ -157,7 +157,7 @@ deploy:
 .PHONY: run
 run:
 	$(info) 'Launching the service'
-	build/bin/ingestion_agent
+	build/bin/server
 
 .PHONY: pipeline-pull
 pipeline-pull: build test-acceptance

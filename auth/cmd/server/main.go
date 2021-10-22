@@ -5,8 +5,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ismtabo/mapon-viewer/pkg/cfg"
+	"github.com/gorilla/sessions"
+	"github.com/ismtabo/sso-poc/auth/pkg/cfg"
+	"github.com/ismtabo/sso-poc/auth/pkg/controller"
+	"github.com/ismtabo/sso-poc/auth/pkg/middleware"
+	"github.com/ismtabo/sso-poc/auth/pkg/repository"
+	"github.com/ismtabo/sso-poc/auth/pkg/service"
 	"github.com/rs/zerolog"
+	"github.com/sonyarouje/simdb"
 )
 
 func main() {
@@ -19,10 +25,19 @@ func main() {
 	if err := configLogger(&config); err != nil {
 		log.Fatal().Msgf("Error configuring the logger. %s", err)
 	}
-
-	http.Handle("/", http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		rw.Write([]byte("Hello World!"))
-	}))
+	driver := mustCreateSimdbDriver(&config, log)
+	userRepo := repository.NewSimdbUserRepository(driver)
+	fileRepo := repository.NewPageRepository(config.Web.Pages)
+	authSvc := service.NewAuthService(userRepo)
+	store := sessions.NewCookieStore([]byte(config.Web.Session.Key))
+	sessionSvc := service.NewCookieSessionService(store, config.Web.Session.Cookie)
+	authCtrl := controller.NewAuthController(authSvc, sessionSvc)
+	pagesCtrl := controller.NewPagesController(sessionSvc, fileRepo)
+	http.Handle("/", middleware.WithSession(sessionSvc, http.HandlerFunc(pagesCtrl.Home)))
+	http.Handle("/login", middleware.WithSession(sessionSvc, http.HandlerFunc(pagesCtrl.Login)))
+	http.HandleFunc("/auth/login", authCtrl.Login)
+	http.HandleFunc("/auth/logout", authCtrl.Logout)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(config.Web.Static))))
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal().Msg("Error starting server")
 	}
@@ -44,4 +59,12 @@ func configLogger(config *Config) error {
 	}
 	zerolog.SetGlobalLevel(lvl)
 	return nil
+}
+
+func mustCreateSimdbDriver(config *Config, log *zerolog.Logger) *simdb.Driver {
+	driver, err := simdb.New(config.Database.File)
+	if err != nil {
+		log.Fatal().Msgf("Error creating simdb driver. %s", err)
+	}
+	return driver
 }

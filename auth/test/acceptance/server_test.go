@@ -7,7 +7,7 @@ import (
 	"github.com/Telefonica/golium"
 	"github.com/Telefonica/golium/steps/http"
 	"github.com/cucumber/godog"
-	"github.com/ismtabo/mapon-viewer/test/acceptance/steps"
+	"github.com/ismtabo/sso-poc/auth/test/acceptance/steps"
 )
 
 func TestMain(m *testing.M) {

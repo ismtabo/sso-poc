@@ -1,4 +1,4 @@
-module github.com/ismtabo/mapon-viewer
+module github.com/ismtabo/sso-poc/web/be
 
 go 1.16
 
